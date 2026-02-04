@@ -1,0 +1,4 @@
+interface:
+  display_name: "Aiden Build"
+  short_description: "Prep binaries and run Aiden Tauri build"
+  default_prompt: "Use $aiden-build to prepare binaries, codesign, and run the Aiden Tauri build or dev command."
