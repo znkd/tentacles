@@ -37,12 +37,15 @@ function ensureRoot(): void {
   }
 }
 
-function prep(): void {
+async function prep(): Promise<void> {
   ensureRoot();
 
   const bundleDir = "LinguaLift/aiden/src-tauri/bundle/com.aiden.monitor";
   if (existsSync(bundleDir)) {
-    run("rm", ["-rf", bundleDir]);
+    const shouldDelete = await promptDeleteBundle(bundleDir);
+    if (shouldDelete) {
+      run("rm", ["-rf", bundleDir]);
+    }
   } else {
     console.error(`Warning: ${bundleDir} does not exist. Skipping clean step.`);
   }
@@ -70,6 +73,41 @@ function ask(question: string): Promise<string> {
       resolve(answer.trim());
     });
   });
+}
+
+function askWithTimeout(question: string, timeoutMs: number): Promise<string | null> {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      rl.close();
+      resolve(null);
+    }, timeoutMs);
+
+    rl.question(question, (answer) => {
+      clearTimeout(timer);
+      rl.close();
+      resolve(answer.trim());
+    });
+  });
+}
+
+async function promptDeleteBundle(bundleDir: string): Promise<boolean> {
+  console.log(`即将删除${bundleDir}`);
+  console.log("1) 同意");
+  console.log("2) 拒绝");
+  const choice = await askWithTimeout("请选择 1 或 2（10秒内无输入将默认不删除）: ", 10_000);
+
+  if (choice === "1") {
+    console.log("用户同意");
+    return true;
+  }
+  if (choice === "2") {
+    console.log("用户拒绝");
+    return false;
+  }
+
+  console.log("超时未选择，默认不删除");
+  return false;
 }
 
 async function promptBuildOrDev(): Promise<void> {
@@ -124,21 +162,21 @@ async function main(): Promise<void> {
 
   switch (command) {
     case "prep":
-      prep();
+      await prep();
       break;
     case "build":
-      prep();
+      await prep();
       runBuild();
       break;
     case "dev":
-      prep();
+      await prep();
       runDev();
       break;
     case "--uploadDMG":
       await promptUploadDmg();
       break;
     case "":
-      prep();
+      await prep();
       await promptBuildOrDev();
       break;
     case "-h":
