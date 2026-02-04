@@ -8,18 +8,12 @@ description: "Build the Aiden Tauri project with required chmod and codesign ste
 ## Workflow
 
 1. Ensure you are in the Aiden project root (the folder that contains `src-tauri/`).
-2. Clean the bundle folder before running the build steps:
-   - `rm -rf LinguaLift/aiden/src-tauri/bundle/com.aiden.monitor`
-3. Run:
-   - `chmod +x src-tauri/bin/*-apple-darwin`
-4. Codesign each binary in order:
-   - `codesign --force -s - ./src-tauri/bin/victoria-metrics-aarch64-apple-darwin`
-   - `codesign --force -s - ./src-tauri/bin/victoria-logs-aarch64-apple-darwin`
-   - `codesign --force -s - ./src-tauri/bin/otelcol-aarch64-apple-darwin`
-5. Ask the user which command to run next:
-   - `npm run tauri:build`
-   - `npm run tauri:dev`
-6. Run the user-selected command and report any errors.
+2. Run one of these script commands:
+   - `npx tsx skills/aiden-build/scripts/aiden-build.ts` (prep + prompt for build/dev)
+   - `npx tsx skills/aiden-build/scripts/aiden-build.ts prep`
+   - `npx tsx skills/aiden-build/scripts/aiden-build.ts build`
+   - `npx tsx skills/aiden-build/scripts/aiden-build.ts dev`
+   - `npx tsx skills/aiden-build/scripts/aiden-build.ts --uploadDMG`
 
 ## Notes
 
